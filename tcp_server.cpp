@@ -86,8 +86,7 @@ bool TCPServer::serve_loop()
                                 (socklen_t *) &client_len);
         if (child_sock < 0) {
             perror("Could not accept.");
-            /* TODO: Probably should not shut down the whole server. */
-            return false;
+            continue;
         }
 
         std::thread *tp = new std::thread(
@@ -110,9 +109,11 @@ static bool read_from_sock(int client, std::string &res)
 {
     fd_set read_set;
     /* Timeout after 0.01 seconds. */
+    /* TODO: Figure out a heuristic for dynamic timeout selection
+     * or a more standard way of calculating it. */
     struct timeval timeout;
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10000;
 
     FD_ZERO(&read_set);
     FD_SET(client, &read_set);

@@ -86,5 +86,6 @@ std::string TCPClient::receive(int size)
 
     delete [] cbuffer;
     close(sock);
+    sock = -1;
     return buffer;
 }
