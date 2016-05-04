@@ -16,7 +16,8 @@ std::string tcp_server_default_cat(const std::string req);
 
 class TCPServer {
 public:
-    TCPServer(message_handler handler=&tcp_server_default_cat);
+    TCPServer(message_handler handler=&tcp_server_default_cat,
+              size_t timeout_microsec=100000);
     ~TCPServer();
     bool start(std::string host, int port, int backlog=5);
     void stop();
@@ -25,6 +26,7 @@ private:
     int optval;
     int parentsock;
     struct sockaddr_in server_addr, client_addr;
+    size_t timeout_microsec;
     int client_len;
     message_handler handler;
     std::atomic_bool *running;

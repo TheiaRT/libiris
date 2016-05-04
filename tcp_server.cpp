@@ -7,8 +7,9 @@ std::string tcp_server_default_cat(const std::string req)
     return req;
 }
 
-TCPServer::TCPServer(message_handler handler)
-    : handler(handler), running(new std::atomic_bool(false))
+TCPServer::TCPServer(message_handler handler, size_t timeout_microsec)
+    : timeout_microsec(timeout_microsec), handler(handler),
+    running(new std::atomic_bool(false))
 {
 }
 
@@ -105,7 +106,9 @@ bool TCPServer::serve_loop()
     return true;
 }
 
-static bool read_from_sock(int client, std::string &res)
+static bool read_from_sock(int client,
+                           std::string &res,
+                           size_t timeout_microsec)
 {
     fd_set read_set;
     /* Timeout after 0.01 seconds. */
@@ -113,7 +116,7 @@ static bool read_from_sock(int client, std::string &res)
      * or a more standard way of calculating it. */
     struct timeval timeout;
     timeout.tv_sec = 0;
-    timeout.tv_usec = 10000;
+    timeout.tv_usec = timeout_microsec;
 
     FD_ZERO(&read_set);
     FD_SET(client, &read_set);
@@ -156,7 +159,7 @@ static bool read_from_sock(int client, std::string &res)
 bool TCPServer::dispatch_handler(int client)
 {
     std::string req = "";
-    if (read_from_sock(client, req) == false) {
+    if (read_from_sock(client, req, timeout_microsec) == false) {
         /* No failure/recovery plan yet. */
         perror("read_from_sock failed.");
         return false;
