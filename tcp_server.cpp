@@ -115,8 +115,8 @@ static bool read_from_sock(int client,
     /* TODO: Figure out a heuristic for dynamic timeout selection
      * or a more standard way of calculating it. */
     struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = timeout_microsec;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0; //timeout_microsec;
 
     FD_ZERO(&read_set);
     FD_SET(client, &read_set);
